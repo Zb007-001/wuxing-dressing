@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>五行穿衣颜色推荐</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --wood: #4a7c59; --fire: #c0392b; --earth: #d4a017;
+    --metal: #b8860b; --water: #1a3a5c;
+    --bg: #faf8f2; --text: #2c2416; --card: #ffffff;
+    --shadow: 0 2px 20px rgba(0,0,0,0.05);
+  }
+
+  body {
+    font-family: "PingFang SC", "Microsoft YaHei", "Hiragino Sans GB", sans-serif;
+    background: var(--bg); color: var(--text);
+    min-height: 100vh; display: flex; justify-content: center;
+    padding: 18px 12px 60px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .app { width: 100%; max-width: 480px; display: flex; flex-direction: column; gap: 16px; }
+
+  /* header */
+  .header { text-align: center; padding: 14px 0 0; }
+  .header h1 { font-size: 26px; font-weight: 700; letter-spacing: 3px; }
+  .header .byline { font-size: 12px; color: #9e8e6e; margin-top: 2px; }
+
+  /* date nav */
+  .nav {
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+  }
+  .nav button {
+    width: 34px; height: 34px; border-radius: 50%;
+    border: 1px solid #e6dcc8; background: var(--card);
+    cursor: pointer; font-size: 14px; color: #6b5e3e;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s;
+  }
+  .nav button:hover { background: #f2ece0; border-color: #c4b896; }
+  .nav .date-text {
+    font-size: 14px; font-weight: 600; min-width: 150px; text-align: center;
+    cursor: pointer; padding: 4px 0; user-select: none;
+  }
+  .nav .today-btn { font-size: 11px; width: auto; padding: 0 14px; border-radius: 16px; font-weight: 500; }
+
+  /* day card */
+  .day-card {
+    background: var(--card); border-radius: 16px;
+    box-shadow: var(--shadow); padding: 26px 20px 20px;
+    text-align: center; position: relative; overflow: hidden;
+  }
+  .day-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0;
+    height: 3px; border-radius: 16px 16px 0 0;
+  }
+  .day-card.wood::before  { background: var(--wood); }
+  .day-card.fire::before  { background: var(--fire); }
+  .day-card.earth::before { background: var(--earth); }
+  .day-card.metal::before { background: var(--metal); }
+  .day-card.water::before { background: var(--water); }
+  .day-card .ganzhi {
+    font-size: 46px; font-weight: 800; letter-spacing: 6px; line-height: 1.15;
+  }
+  .day-card .elem-badge {
+    display: inline-block; padding: 5px 22px; border-radius: 14px;
+    font-size: 14px; font-weight: 600; color: #fff; margin: 8px 0 4px;
+  }
+  .day-card .lunar-text { font-size: 12px; color: #8c7a5e; margin-top: 2px; }
+
+  /* section title */
+  .sec { font-size: 14px; font-weight: 700; padding: 0 4px; margin-bottom: 8px; }
+
+  /* rec card */
+  .rec-card {
+    background: var(--card); border-radius: 16px;
+    box-shadow: var(--shadow); padding: 16px 14px 8px;
+  }
+  .rec-item {
+    display: flex; align-items: flex-start; gap: 12px;
+    padding: 10px 12px; border-radius: 12px;
+    background: #faf8f2; margin-bottom: 8px;
+  }
+  .rec-item .swatch {
+    width: 40px; height: 40px; border-radius: 10px;
+    flex-shrink: 0; box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+  }
+  .rec-item .info { flex: 1; min-width: 0; }
+  .rec-item .info .title-line {
+    font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 4px;
+  }
+  .rec-item .info .colors {
+    font-size: 12px; color: #6b5e3e; margin-top: 1px;
+  }
+  .rec-item .info .hint {
+    font-size: 11px; color: #8c7a5e; margin-top: 2px; line-height: 1.4;
+  }
+  .rec-item .level {
+    font-size: 11px; padding: 3px 10px; border-radius: 10px;
+    font-weight: 700; white-space: nowrap; flex-shrink: 0;
+  }
+  .lvl-1 { background: #e74c3c; color: #fff; } /* 大吉 */
+  .lvl-2 { background: #e8a838; color: #fff; } /* 次吉 */
+  .lvl-3 { background: #cfc0a0; color: #5a4a2f; } /* 平色 */
+  .lvl-4 { background: #e8ddd0; color: #8c7a5e; } /* 耗气 */
+  .lvl-5 { background: #d5c4b0; color: #8c7a5e; } /* 大忌 */
+
+  /* palette dots */
+  .dots { display: flex; gap: 5px; margin-top: 4px; }
+  .dots span { width: 16px; height: 16px; border-radius: 5px; }
+
+  /* rel card */
+  .rel-card {
+    background: var(--card); border-radius: 16px;
+    box-shadow: var(--shadow); padding: 16px;
+  }
+  .rel-grid {
+    display: flex; justify-content: center; flex-wrap: wrap; gap: 6px;
+  }
+  .rel-chip {
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
+    padding: 8px 4px; border-radius: 10px;
+    background: #faf8f2; min-width: 64px;
+  }
+  .rel-chip .rel-label { font-size: 10px; color: #b0a080; }
+  .rel-chip .rel-elem {
+    font-size: 12px; font-weight: 600; padding: 3px 10px;
+    border-radius: 10px; color: #fff;
+  }
+
+  /* scene tips */
+  .scene-card {
+    background: var(--card); border-radius: 16px;
+    box-shadow: var(--shadow); padding: 16px;
+  }
+  .scene-item {
+    display: flex; gap: 8px; padding: 6px 0;
+    font-size: 12px; line-height: 1.5;
+  }
+  .scene-item .scene-icon { flex-shrink: 0; font-size: 15px; }
+  .scene-item .scene-body {}
+  .scene-item .scene-scene { font-weight: 600; color: var(--text); }
+  .scene-item .scene-tip { color: #8c7a5e; font-size: 11px; }
+
+  /* footer */
+  .foot { text-align: center; font-size: 11px; color: #b0a080; padding: 4px 0; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="header">
+    <h1>五行穿衣颜色推荐</h1>
+    <div class="byline">天人合一 &middot; 顺势而穿</div>
+  </div>
+
+  <div class="nav">
+    <button onclick="shift(-1)">&larr;</button>
+    <span class="date-text" id="dateText" onclick="goToday()"></span>
+    <button onclick="shift(1)">&rarr;</button>
+    <button class="today-btn" onclick="goToday()">今天</button>
+  </div>
+
+  <div class="day-card" id="dayCard"></div>
+
+  <div class="rec-card">
+    <div class="sec">穿 衣 颜 色 建 议</div>
+    <div id="recList"></div>
+  </div>
+
+  <div class="scene-card">
+    <div class="sec">场 景 化 搭 配 参 考</div>
+    <div id="sceneList"></div>
+  </div>
+
+  <div class="rel-card">
+    <div class="sec">五 行 生 克 关 系</div>
+    <div class="rel-grid" id="relGrid"></div>
+  </div>
+
+  <div class="foot">基于当日天干推算 &middot; 仅供参考</div>
+
+</div>
+
+<script>
+// Five elements data
+const E = {
+  wood:  { key:'wood',  name:'木', icon:'\u{1F333}', stem:'甲乙',
+           colors:['#1a2a3a','#1a3a5c','#2c3e50','#16213e','#2d3748'],
+           cnames:['黑色','藏蓝','深灰','深蓝','暗灰'] },
+  fire:  { key:'fire',  name:'火', icon:'\u{1F525}', stem:'丙丁',
+           colors:['#c0392b','#e74c3c','#e8837c','#b71540','#f5b7b1'],
+           cnames:['红色','正红','浅红','紫色','粉色'] },
+  earth: { key:'earth', name:'土', icon:'\u26F0\uFE0F', stem:'戊己',
+           colors:['#d4a017','#e8c547','#c8960c','#b8860b','#f0d78c'],
+           cnames:['黄色','明黄','金色','棕色','橙色'] },
+  metal: { key:'metal', name:'金', icon:'\u269C\uFE0F', stem:'庚辛',
+           colors:['#f2f2ed','#ffd700','#cfcfc0','#e8e4d8','#d4c9a8'],
+           cnames:['白色','金色','银色','米白','浅金'] },
+  water: { key:'water', name:'水', icon:'\u{1F4A7}', stem:'壬癸',
+           colors:['#f2f2ed','#c0c0c0','#e8e4d8','#d4c9a8','#f5f5f0'],
+           cnames:['白色','银灰','米白','浅金','乳白'] },
+};
+
+// ---- Color rules per day-element (corrected as confirmed) ----
+// Level 1=大吉(生我), 2=次吉(同我), 3=平色(我克), 4=耗气(我生), 5=大忌(克我)
+const COLOR_RULES = {
+  wood: [  // 木日
+    { elem:'water', level:'大吉', cls:'lvl-1', colors:'黑色、藏蓝色、深灰色', rel:'水生木', desc:'天时生扶, 贵人相助, 重要场合大面积穿戴' },
+    { elem:'wood',  level:'次吉', cls:'lvl-2', colors:'绿色、青色、翠绿色', rel:'木同木', desc:'比肩同频, 利于合作, 搭配大吉色穿搭' },
+    { elem:'earth', level:'平色', cls:'lvl-3', colors:'黄色、咖色、驼色', rel:'木克土', desc:'我克为财, 宜求财, 仅小面积点缀' },
+    { elem:'fire',  level:'耗气', cls:'lvl-4', colors:'红色、粉色、紫色', rel:'木生火', desc:'泄耗自身, 易疲惫, 尽量少穿' },
+    { elem:'metal', level:'大忌', cls:'lvl-5', colors:'白色、银灰色', rel:'金克木', desc:'天时冲克, 全天规避' },
+  ],
+  fire: [  // 火日
+    { elem:'wood',  level:'大吉', cls:'lvl-1', colors:'绿色、青色、翠绿色', rel:'木生火', desc:'天时生扶, 贵人相助, 重要场合大面积穿戴' },
+    { elem:'fire',  level:'次吉', cls:'lvl-2', colors:'红色、粉色、紫色、橘红色', rel:'火同火', desc:'比肩同频, 利于合作, 搭配大吉色穿搭' },
+    { elem:'earth', level:'平色', cls:'lvl-3', colors:'黄色、卡其色、驼色', rel:'火克土', desc:'我克为财, 宜求财, 仅小面积点缀' },
+    { elem:'metal', level:'耗气', cls:'lvl-4', colors:'白色、银灰色', rel:'火生金', desc:'泄耗自身, 易疲惫, 尽量少穿' },
+    { elem:'water', level:'大忌', cls:'lvl-5', colors:'黑色、深蓝色', rel:'水克火', desc:'天时冲克, 全天规避' },
+  ],
+  earth: [  // 土日
+    { elem:'fire',  level:'大吉', cls:'lvl-1', colors:'红色、粉色、紫色', rel:'火生土', desc:'天时生扶, 贵人相助, 重要场合大面积穿戴' },
+    { elem:'earth', level:'次吉', cls:'lvl-2', colors:'黄色、咖色、米色', rel:'土同土', desc:'比肩同频, 利于合作, 搭配大吉色穿搭' },
+    { elem:'metal', level:'平色', cls:'lvl-3', colors:'白色、银色、浅灰色', rel:'土克金', desc:'我克为财, 宜求财, 仅小面积点缀' },
+    { elem:'water', level:'耗气', cls:'lvl-4', colors:'黑色、藏蓝色', rel:'土生水', desc:'泄耗自身, 易疲惫, 尽量少穿' },
+    { elem:'wood',  level:'大忌', cls:'lvl-5', colors:'绿色、青色', rel:'木克土', desc:'天时冲克, 全天规避' },
+  ],
+  metal: [  // 金日
+    { elem:'earth', level:'大吉', cls:'lvl-1', colors:'黄色、咖色、驼色', rel:'土生金', desc:'天时生扶, 贵人相助, 重要场合大面积穿戴' },
+    { elem:'metal', level:'次吉', cls:'lvl-2', colors:'白色、银色、浅灰色', rel:'金同金', desc:'比肩同频, 利于合作, 搭配大吉色穿搭' },
+    { elem:'wood',  level:'平色', cls:'lvl-3', colors:'绿色、青色', rel:'金克木', desc:'我克为财, 宜求财, 仅小面积点缀' },
+    { elem:'water', level:'耗气', cls:'lvl-4', colors:'黑色、深蓝色', rel:'金生水', desc:'泄耗自身, 易疲惫, 尽量少穿' },
+    { elem:'fire',  level:'大忌', cls:'lvl-5', colors:'红色、紫色、粉色', rel:'火克金', desc:'天时冲克, 全天规避' },
+  ],
+  water: [  // 水日
+    { elem:'metal', level:'大吉', cls:'lvl-1', colors:'白色、银灰色、米白色', rel:'金生水', desc:'天时生扶, 贵人相助, 重要场合大面积穿戴' },
+    { elem:'water', level:'次吉', cls:'lvl-2', colors:'黑色、藏蓝色、深灰色', rel:'水同水', desc:'比肩同频, 利于合作, 搭配大吉色穿搭' },
+    { elem:'fire',  level:'平色', cls:'lvl-3', colors:'红色、粉色、紫色', rel:'水克火', desc:'我克为财, 宜求财, 仅小面积点缀' },
+    { elem:'wood',  level:'耗气', cls:'lvl-4', colors:'绿色、青色', rel:'水生木', desc:'泄耗自身, 易疲惫, 尽量少穿' },
+    { elem:'earth', level:'大忌', cls:'lvl-5', colors:'黄色、咖色、土黄色', rel:'土克水', desc:'天时冲克, 全天规避' },
+  ],
+};
+
+const ELEM_BG = { wood:'#4a7c59', fire:'#c0392b', earth:'#d4a017', metal:'#b8860b', water:'#1a3a5c' };
+
+// ---- Calendar ----
+const STEM = ['甲','乙','丙','丁','戊','己','庚','辛','壬','癸'];
+const BRANCH = ['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
+const STEM_ELEM = ['wood','wood','fire','fire','earth','earth','metal','metal','water','water'];
+const REF = new Date(1900, 0, 1);
+const REF_IDX = 10;
+
+function daysFrom(d) { return Math.round((d.getTime() - REF.getTime()) / 86400000); }
+function ganzhiOf(d) {
+  let idx = ((daysFrom(d) % 60) + 60) % 60;
+  idx = (idx + REF_IDX) % 60;
+  return { stem: idx % 10, branch: idx % 12 };
+}
+
+// ---- Lunar (approx) ----
+const CNY = {
+  '2020':[2020,0,25],'2021':[2021,1,12],'2022':[2022,1,1],'2023':[2023,0,22],
+  '2024':[2024,1,10],'2025':[2025,0,29],'2026':[2026,1,17],'2027':[2027,1,6],
+  '2028':[2028,0,26],'2029':[2029,1,13],'2030':[2030,1,3],'2031':[2031,0,23],
+  '2032':[2032,1,11],'2033':[2033,0,31],'2034':[2034,1,19],'2035':[2035,1,8],
+};
+const LMO = ['正月','二月','三月','四月','五月','六月','七月','八月','九月','十月','冬月','腊月'];
+const LDAY = ['','初一','初二','初三','初四','初五','初六','初七','初八','初九','初十',
+  '十一','十二','十三','十四','十五','十六','十七','十八','十九','二十',
+  '廿一','廿二','廿三','廿四','廿五','廿六','廿七','廿八','廿九','三十'];
+
+function lunarApprox(d) {
+  const y = d.getFullYear(), m = d.getMonth();
+  let cnyYear = y;
+  const c = CNY[String(cnyYear)];
+  if (c) { const cny = new Date(c[0],c[1],c[2]); if (d < cny) cnyYear = y - 1; }
+  const c2 = CNY[String(cnyYear)];
+  if (!c2) return '';
+  const cnyDate = new Date(c2[0],c2[1],c2[2]);
+  const diff = Math.round((d.getTime() - cnyDate.getTime()) / 86400000);
+  if (diff < 0) return '';
+  let rem = diff, lm = 0;
+  const big = [0,2,4,6,7,9,11];
+  while (rem >= 0 && lm < 25) {
+    const days = big.includes(lm % 12) ? 30 : 29;
+    if (rem < days) break;
+    rem -= days; lm++;
+  }
+  return LMO[lm % 12] + LDAY[Math.min(rem + 1, 30)];
+}
+
+// ---- Render ----
+let cur = new Date(); cur.setHours(0,0,0,0);
+
+const SCENES = [
+  { icon:'\u{1F4BC}', scene:'求职 / 签约 / 谈大单 / 求人办事', tip:'全身以大吉色为主, 完全避开相克忌色' },
+  { icon:'\u{1F91D}', scene:'商务合作 / 多人会议 / 社交聚会', tip:'大吉色 + 次吉色双色搭配, 平衡人缘与机遇' },
+  { icon:'\u{1F4B0}', scene:'摆摊 / 销售 / 求财洽谈', tip:'大吉色为主, 搭配少量平色求财配饰' },
+  { icon:'\u{1F3E0}', scene:'居家休息 / 独处放空', tip:'可适度使用耗气色系, 舒缓情绪, 不影响运势' },
+];
+
+function render() {
+  const gz = ganzhiOf(cur);
+  const ek = STEM_ELEM[gz.stem];
+
+  const y = cur.getFullYear(), m = cur.getMonth()+1, d = cur.getDate();
+  const w = ['日','一','二','三','四','五','六'][cur.getDay()];
+  document.getElementById('dateText').textContent = `${y}年${m}月${d}日 星期${w}`;
+
+  // Day card
+  const lunar = lunarApprox(cur);
+  const ed = E[ek];
+  const card = document.getElementById('dayCard');
+  card.className = 'day-card ' + ek;
+  card.innerHTML =
+    `<div class="ganzhi">${STEM[gz.stem]}${BRANCH[gz.branch]}日</div>
+     <span class="elem-badge" style="background:${ELEM_BG[ek]}">${ed.icon} ${ed.name}日 &middot; ${ed.stem}</span>
+     ${lunar ? `<div class="lunar-text">农历${lunar}</div>` : ''}`;
+
+  // Rec list
+  const rules = COLOR_RULES[ek];
+  document.getElementById('recList').innerHTML = rules.map((r,i) => {
+    const ed2 = E[r.elem];
+    const dots = ed2.colors.slice(0,5).map(c =>
+      `<span style="background:${c}"></span>`).join('');
+    return `
+      <div class="rec-item">
+        <div class="swatch" style="background:${ed2.colors[0]}"></div>
+        <div class="info">
+          <div class="title-line">${ed2.icon} ${r.level} &middot; ${ed2.name}系</div>
+          <div class="colors">${r.colors}</div>
+          <div class="hint">${r.rel} &middot; ${r.desc}</div>
+          <div class="dots">${dots}</div>
+        </div>
+        <span class="level ${r.cls}">${r.level}</span>
+      </div>`;
+  }).join('');
+
+  // Scenes
+  document.getElementById('sceneList').innerHTML = SCENES.map(s =>
+    `<div class="scene-item">
+       <div class="scene-icon">${s.icon}</div>
+       <div class="scene-body">
+         <div class="scene-scene">${s.scene}</div>
+         <div class="scene-tip">${s.tip}</div>
+       </div>
+     </div>`).join('');
+
+  // Rel diagram
+  const rels = [
+    { label:'生我', ek: rules[0].elem },
+    { label:'同我', ek: rules[1].elem },
+    { label:'我生', ek: rules[3].elem },
+    { label:'克我', ek: rules[4].elem },
+    { label:'我克', ek: rules[2].elem },
+  ];
+  document.getElementById('relGrid').innerHTML = rels.map(r => {
+    const ed2 = E[r.ek];
+    return `<div class="rel-chip">
+      <div class="rel-label">${r.label}</div>
+      <div class="rel-elem" style="background:${ELEM_BG[r.ek]}">${ed2.icon} ${ed2.name}</div>
+    </div>`;
+  }).join('');
+}
+
+function shift(n) { cur.setDate(cur.getDate() + n); render(); }
+function goToday() { cur = new Date(); cur.setHours(0,0,0,0); render(); }
+
+render();
+</script>
+</body>
+</html>

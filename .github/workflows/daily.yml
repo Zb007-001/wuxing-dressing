@@ -1,0 +1,25 @@
+name: 五行穿衣每日推送
+
+on:
+  schedule:
+    # 北京时间每天早上 9:00 (UTC 1:00)
+    - cron: '0 1 * * *'
+  workflow_dispatch:  # 允许手动触发
+
+jobs:
+  push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      - name: 安装 Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: 推送五行穿衣建议
+        env:
+          TZ: Asia/Shanghai
+        run: python wuxing_push.py
