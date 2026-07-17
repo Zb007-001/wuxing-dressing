@@ -348,6 +348,17 @@ def send_push(title: str, body: str) -> bool:
 
 def main():
     target_date = date.today()
+
+    # ---- 防重复：检查是否今天已推送 ----
+    today_str = target_date.isoformat()
+    try:
+        with open('last_sent.txt', 'r') as f:
+            if f.read().strip() == today_str:
+                print(f'[SKIP] {today_str} already sent, skipping duplicate')
+                return
+    except FileNotFoundError:
+        pass
+
     dry_run = False
 
     args = sys.argv[1:]

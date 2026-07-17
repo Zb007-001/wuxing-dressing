@@ -2,9 +2,19 @@ name: 五行穿衣每日推送
 
 on:
   schedule:
-    # 北京时间每天早上 9:30 (UTC 1:30)，避开整点高峰避免延迟
-    - cron: '30 1 * * *'
+    # 三层兜底：9:30 / 10:00 / 11:00 北京时间
+    - cron: '30 1 * * *'   # 9:30 主触发
+    - cron: '0 2 * * *'    # 10:00 一重兜底
+    - cron: '0 3 * * *'    # 11:00 二重兜底
   workflow_dispatch:  # 允许手动触发
+
+permissions:
+  contents: write       # 需要写入仓库记录发送日期
+
+# 保证同一时间只跑一个，避免重复推送
+concurrency:
+  group: daily-push
+  cancel-in-progress: false
 
 jobs:
   push:
@@ -23,3 +33,13 @@ jobs:
         env:
           TZ: Asia/Shanghai
         run: python wuxing_push.py
+
+      - name: 记录发送日期（防止重复推送）
+        if: success()
+        run: |
+          date '+%Y-%m-%d' > last_sent.txt
+          git config user.name 'github-actions'
+          git config user.email 'actions@github.com'
+          git add last_sent.txt
+          git diff --staged --quiet || git commit -m 'record: push sent'
+          git push
