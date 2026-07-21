@@ -387,7 +387,13 @@ def main():
 
     print(f"[INFO] Targeting: {target_date}")
     success = send_push(title, body)
-    sys.exit(0 if success else 1)
+    if success:
+        # 立即写入标记文件，即使后续 git push 失败也不会重复发送
+        with open('last_sent.txt', 'w') as f:
+            f.write(today_str)
+        sys.exit(0)
+    else:
+        sys.exit(1)
 
 
 if __name__ == '__main__':
